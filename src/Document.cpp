@@ -533,3 +533,66 @@ bool Document::getTextRange(int startLine,
     result = selectedText;
     return true;
 }
+
+// Replaces text between two positions.
+// Also returns the original text for undo.
+bool Document::replaceTextRange(int startLine,
+                                int startColumn,
+                                int endLine,
+                                int endColumn,
+                                const string &newText,
+                                string &removedText)
+{
+
+    string oldText;
+
+    // Check the range and save the original text.
+    if (getTextRange(startLine, startColumn,
+                     endLine, endColumn, oldText) == false)
+    {
+        return false;
+    }
+
+    // Delete the original selected text.
+    if (deleteTextRange(startLine, startColumn,
+                        endLine, endColumn) == false)
+    {
+        return false;
+    }
+
+    int currentLine = startLine;
+    int currentColumn = startColumn;
+    string part = "";
+
+    // Insert the replacement, handling newline characters.
+    for (int i = 0; i < (int)newText.length(); i++)
+    {
+
+        if (newText[i] == '\n')
+        {
+
+            // Insert the text collected before the newline.
+            insertText(currentLine, currentColumn, part);
+            currentColumn += (int)part.length();
+            part = "";
+
+            // Split the line at the current position.
+            insertNewLine(currentLine, currentColumn);
+
+            currentLine++;
+            currentColumn = 0;
+        }
+        else
+        {
+            part += newText[i];
+        }
+    }
+
+    // Insert any remaining characters.
+    insertText(currentLine, currentColumn, part);
+
+    // Return the original text to the caller.
+    removedText = oldText;
+
+    return true;
+}

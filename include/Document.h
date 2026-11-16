@@ -90,6 +90,9 @@ public:
     // Does not change the document.
     bool getTextRange(int startLine, int startColumn, int endLine, int endColumn, string &result) const;
 
+    // Replaces a selected range and saves the removed text.
+    bool replaceTextRange(int startLine, int startColumn, int endLine, int endColumn, const string &newText, string &removedText);
+
     // Displays all lines with their line numbers.
     void display() const;
 };
